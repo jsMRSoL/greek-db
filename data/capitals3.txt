@@ -1,0 +1,10 @@
+*!rei/as	{101094554 9 *(rei/a_s,*(re/a	 	fem gen sg (attic epic doric aeolic)}
+*!ri/oisi	{101414773 1 *(ri/oisi,*(ri/on	 	neut dat pl (epic ionic aeolic)}
+*!ri/on	{101414773 1 *(ri/on,*(ri/on	 	neut nom/voc/acc sg}
+*!ri/ou	{101414773 1 *(ri/ou,*(ri/on	 	neut gen sg}
+*(/afaistos	{18811312 0 *(/a_faistos,*(/afaistos	 	masc nom sg (doric)}
+*(/agi'	{948200 1 *(/agie,*(/agios	 	masc voc sg}
+*(/agie	{948200 1 *(/agios	 	masc voc sg}
+*(/agioi	{948200 1 *(/agios	 	masc nom/voc pl}
+*(/agion	{948200 1 *(/agios	 	masc acc sg}
+*(/agios	{948200 1 *(/agios	 	masc nom sg}

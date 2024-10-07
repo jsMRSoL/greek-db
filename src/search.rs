@@ -87,7 +87,6 @@ pub fn search(term: &str, file: &str) -> Result<String, Box<dyn Error>> {
 
     let mut found = String::new();
     let full_path = path.join(file);
-    // println!("path: {:?}", full_path);
     let file_text = File::open(full_path)?;
     let buffered_text = BufReader::new(file_text);
     let ptn = format!(r#"key="{}""#, regex::escape(term));
@@ -105,13 +104,24 @@ pub fn search(term: &str, file: &str) -> Result<String, Box<dyn Error>> {
 pub fn query_lsj_vec(term_vec: Vec<String>) -> Result<String, Box<dyn std::error::Error>> {
     let mut lines_found = Vec::new();
     let mut entries_found = Vec::new();
-    for mut term in term_vec {
-        // let initial: char = term.chars().next().unwrap().to_lowercase().next().unwrap();
-        let mut initial: char = term.chars().next().unwrap();
-        if initial == '*' {
-            initial = term.chars().next().unwrap();
-            term = term[1..].to_string();
+    for term in term_vec {
+        let mut chars_iter = term.chars();
+        let mut initial: char = chars_iter.next().unwrap();
+        loop {
+            match initial {
+                '*' => initial = chars_iter.next().unwrap(),
+                '(' => initial = chars_iter.next().unwrap(),
+                ')' => initial = chars_iter.next().unwrap(),
+                '/' => initial = chars_iter.next().unwrap(),
+                '\\' => initial = chars_iter.next().unwrap(),
+                '=' => initial = chars_iter.next().unwrap(),
+                _ => break,
+            }
         }
+        // if initial == '*' {
+        //     initial = chars_iter.next().unwrap();
+        // }
+        // dbg!(&initial);
         let files = XML_FILES.get(&initial).unwrap();
         for file in files {
             let query_result = search(&term, &file);
@@ -125,13 +135,12 @@ pub fn query_lsj_vec(term_vec: Vec<String>) -> Result<String, Box<dyn std::error
             }
         }
     }
-
+    // dbg!(&lines_found);
     for line in lines_found.iter() {
         let parsed_entry = parsing::parse_entry(line);
         match parsed_entry {
             Ok((_, entry)) => entries_found.push(entry),
-            // Err(e) => eprintln!("{e}"),
-            Err(e) => {}
+            Err(e) => eprintln!("Lexicon entry could not be parsed.\n{e}"),
         }
     }
 
@@ -143,12 +152,13 @@ pub fn query_lsj_vec(term_vec: Vec<String>) -> Result<String, Box<dyn std::error
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
-    // #[test]
-    // fn test_lookup() {
-    //     let term = "teleuth/";
-    //     let xml_results = lookup(term);
-    //
-    //     println!("XML results:\n{:#?}", xml_results);
-    // }
+    use super::*;
+    #[test]
+    fn test_query_lsj_vec() {
+        let res = query_lsj_vec(vec!["*lakedai/mwn".to_owned()]);
+        match res {
+            Ok(j) => println!("{:#?}", j),
+            Err(e) => eprintln!("{}", e),    
+        }
+    }
 }

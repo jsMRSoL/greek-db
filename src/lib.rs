@@ -1,10 +1,6 @@
 #![allow(dead_code)]
 #[macro_use]
 extern crate diesel;
-// use serde::Serialize;
-// use serde_json;
-
-// pub mod models;
 pub mod schema;
 pub mod transliterate;
 pub mod search;
@@ -58,12 +54,15 @@ pub fn query_gcse_greek(
     use self::schema::gcse_greek::dsl::part_of_speech as g_part_of_speech;
     use self::schema::lsj_lemmata::dsl::*;
 
+    // dbg!(term);
     let data: Result<Vec<(String, String, String)>, _> = gcse_greek
         .inner_join(lsj_lemmata.on(g_headword.eq(headword)))
         .filter(form.eq(term))
         .select((g_dict_form, g_part_of_speech, g_meaning))
         .order(g_dict_form.asc())
         .load(connection);
+
+    // dbg!(&data);
 
     match data {
         Ok(results) => match serde_json::to_string(&results) {
@@ -114,6 +113,7 @@ pub fn get_lsj_key(
         .select(key)
         .load(connection);
 
+    // dbg!(&data);
     match data {
         Ok(results) => {
             match search::query_lsj_vec(results) {
@@ -140,6 +140,8 @@ pub fn query_gcse_greek_headword(
         .select((g_dict_form, g_part_of_speech, g_meaning))
         .order(g_dict_form.asc())
         .load(connection);
+
+    // dbg!(&data);
 
     match data {
         Ok(results) => match serde_json::to_string(&results) {
@@ -182,7 +184,7 @@ pub fn get_lsj_key_headword(
     use self::schema::lsj_entry_keys::dsl::*;
 
     let data: Result<Vec<String>, _> = lsj_entry_keys
-        .filter(head.eq(term))
+        .filter(simple_key.eq(term))
         .select(key)
         .load(connection);
 
@@ -196,11 +198,36 @@ pub fn get_lsj_key_headword(
         Err(e) => Err(Box::new(e)),
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
         let _ = establish_connection();
+    }
+
+    #[test]
+    fn test_get_lsj_key() {
+        let term = "*lakedai/mwn";
+        let conn = establish_connection();
+        let res = get_lsj_key(term, &conn);
+        println!("{:#?}", res);
+    }
+
+    #[test]
+    fn test_get_lsj_key_headword() {
+        let term = "*lakedai/mwn";
+        let conn = establish_connection();
+        let res = get_lsj_key_headword(term, &conn);
+        println!("{:#?}", res);
+    }
+
+    #[test]
+    fn test_query_greek_gcse_headword() {
+        let term = "dou=los";
+        let conn = establish_connection();
+        let res = query_gcse_greek_headword(term, &conn);
+        println!("{:#?}", res);
     }
 }

@@ -47,3 +47,22 @@ fn run_query(term: Arc<String>) {
     println!("{{{}}}", res_str);
 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_run_query() {
+        let input = "Λακεδαίμων";
+        let term = transliterate(input);
+        run_query(Arc::new(term));
+   }
+ 
+    #[test]
+    fn test_run_query_known_working() {
+        let input = "δοῦλον";
+        let term = transliterate(input);
+        run_query(Arc::new(term.to_owned()));
+    }
+}
